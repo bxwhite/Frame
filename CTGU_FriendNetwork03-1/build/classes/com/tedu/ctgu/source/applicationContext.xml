@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context" 
+    xmlns:jdbc="http://www.springframework.org/schema/jdbc"  
+    xmlns:jee="http://www.springframework.org/schema/jee" 
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xmlns:aop="http://www.springframework.org/schema/aop" 
+    xmlns:mvc="http://www.springframework.org/schema/mvc"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xmlns:jpa="http://www.springframework.org/schema/data/jpa"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd
+        http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-3.2.xsd
+        http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-3.2.xsd
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.2.xsd
+        http://www.springframework.org/schema/data/jpa http://www.springframework.org/schema/data/jpa/spring-jpa-1.3.xsd
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.2.xsd
+        http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.2.xsd">
+    <!-- 引入注解 -->
+    <mvc:annotation-driven/>
+    <context:component-scan 
+    base-package="com.tedu.ctgu.*">
+    </context:component-scan>
+    
+    <!-- 数据源 -->
+    <util:properties id="myjdbc" 
+    location="classpath:com/tedu/ctgu/source/db.properties"></util:properties>
+    <bean id="ds" class="org.apache.commons.dbcp.BasicDataSource">
+    	<property name="driverClassName" value="#{myjdbc.driverClassName}"></property>
+    	<property name="url" value="#{myjdbc.url}"></property>
+    	<property name="username" value="#{myjdbc.username}"></property>
+    	<property name="password" value="#{myjdbc.password}"></property>
+    </bean>
+    <mvc:default-servlet-handler/>
+    <mvc:interceptors>
+    <mvc:interceptor>
+    <!-- 拦截所有请求 -->
+    <mvc:mapping path="/**"/>
+    <!-- 个别请求不用拦截 -->
+    <mvc:exclude-mapping path="/user/regist.do"/>
+    <mvc:exclude-mapping path="/user/findByName.do"/>
+    <mvc:exclude-mapping path="/user/checkCode.do"/>
+    <mvc:exclude-mapping path="/user/checkpassword.do"/>
+    <mvc:exclude-mapping path="/user/login.do"/>
+    <mvc:exclude-mapping path="/user/logout.do"/>
+    <mvc:exclude-mapping path="/user/toUserList.do"/>
+    <mvc:exclude-mapping path="/user/toRegist.do"/>
+    <mvc:exclude-mapping path="/user/verify.do"/>
+    <!-- 拦截地址 -->
+    <bean class="com.tedu.ctgu.interceptor.MyInterceptor"></bean>
+    </mvc:interceptor>
+    </mvc:interceptors>
+    
+  <!--   <bean class="org.springframework.web.servlet.handle">
+    <property name="exceptionMappings">
+    <props>
+    <prop key="java.lang.NumberFormatException">
+    /Error
+    </prop>
+    </props>
+    </property>
+    </bean> -->
+    <!-- 集成mybatis Sessionfatctory -->
+    <bean id="sessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+    	<!-- 依赖注入属性值set方式 -->
+    	<property name="dataSource" ref="ds"></property>
+    	<!-- mapper接口所对应的User/Pic.xml的值 -->
+    	<property name="mapperLocations">
+    		<value>classpath:com/tedu/ctgu/mapper/*.xml</value>
+    	</property>
+    </bean>
+    <!-- 自动识别并且管理dao的实现类 -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.tedu.ctgu.dao"></property>
+	</bean>
+    <!-- 视图解析器viewResolver 配置页面的前缀和后缀-->
+    <bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+     	<property name="prefix" value="/WEB-INF/friend_demo"></property>
+    	<property name="suffix" value=".jsp"></property>
+    </bean>
+   </beans>

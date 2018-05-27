@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.tedu.ctgu.dao.UserDao">
+	<!-- 根据username查询用户信息 -->
+	<select id="findByName" parameterType="String" resultType="com.tedu.ctgu.pojo.User">
+	select * from friend_user where username=#{username}
+	</select>
+	<!-- 根据id查询用户信息 -->
+	<select id="findById" parameterType="int" resultType="com.tedu.ctgu.pojo.User">
+	select * from friend_user where id=#{id}
+	</select>
+	<!-- 插入 -->
+	<insert id="registerUser" parameterType="com.tedu.ctgu.pojo.User" useGeneratedKeys="true" keyProperty="id">
+	insert into friend_user(username,name,password,age,phone,gendar) value(#{username},#{name},#{password},#{age},#{phone},#{gendar})
+	</insert>
+	<!-- 根据username和password是否为空 -->
+	<select id="login"  resultType="com.tedu.ctgu.pojo.User">
+	select * from friend_user where username=#{0} and password=#{1}
+	</select>
+	<!-- 查询所有用户 -->
+	<select id="findAll" resultMap="myUser" >
+	select * from friend_user
+	</select>	
+	<!-- 结果map ;防止列名不一致和一对一或一对多的情况-->
+	<resultMap type="com.tedu.ctgu.pojo.User" id="myUser">
+		<id property="id"  column="id" />	
+		<result property="username" column="username"/>
+		<result property="name" column="name"/>
+		<result property="password" column="password"/>
+		<result property="age" column="age"/>
+		<result property="gendar" column="gendar"/>
+		<result property="phone" column="phone"/>
+		<!-- 一对一或一对多 -->		
+	</resultMap>
+	<delete id="deleteUser" parameterType="int">
+	delete from friend_user where id=#{id}
+	</delete>
+	<update id="updateUser" parameterType="com.tedu.ctgu.pojo.User" >
+	update friend_user set name=#{name},password=#{password},age=#{age},gendar=#{gendar},phone=#{phone} where username=#{username}
+	</update>
+</mapper>
